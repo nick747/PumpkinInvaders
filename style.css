@@ -1,0 +1,39 @@
+/* Creiamo una griglia da  225 */
+:root {
+  --cell-size: 40px;
+  --cols: 15;
+  --rows: 15;
+}
+
+#grid {
+  width: calc(var(--cell-size) * var(--cols) + 4px);
+  height: calc(var(--cell-size) * var(--rows) + 4px);
+  display: flex;
+  flex-wrap: wrap;
+  border: 2px solid white;
+}
+
+#grid > div {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  position: relative;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.bat {
+  background-image: url('./images/bat.png');
+}
+
+.pumpkin {
+  background-image: url('./images/pumpkin.png');
+}
+
+.candy {
+  background-image: url('./images/candy.png');
+}
+
+.boom {
+  background-image: url('./images/explosion.png');
+}
