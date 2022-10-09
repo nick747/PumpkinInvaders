@@ -5,15 +5,14 @@ const DEBUG = false;
 const width = 15; 
 const rxc = width * width;
 const squares = [];
-const aliensRemoved = [];
-const aliensSpeed = 200;
+const batsSpeed = 200;
 
-let  noEvents = false;
+let noEvents = false;
 let batInterval = null;
-let currentSpaceshipIndex = 217;
+let currentPumpkinIndex = 217;
 let results = 0;
 
-const alienInvaders = [
+const batInvaders = [
   0,1,2,3,4,5,6,7,8,9,
   15,16,17,18,19,20,21,22,23,24,
   30,31,32,33,34,35,36,37,38,39
@@ -33,126 +32,138 @@ for (let i = 0; i < rxc; i++) {
   grid.appendChild(square);
 }
 
-// Disegno gli alieni
+// Disegno i pipistrelli
 function draw() {
-  for (let i = 0; i < alienInvaders.length; i++) {
-    if(!aliensRemoved.includes(i)) {
-      squares[alienInvaders[i]].classList.add('bat')
+  for (let i = 0; i < batInvaders.length; i++) {
+    if (batInvaders[i] != -1) {
+      squares[batInvaders[i]].classList.add('bat')
     }
   }
 }
 
-// Rimuovo gli alieni
+// Rimuovo i pipistrelli
 function clear() {
-  for(let i = 0; i < alienInvaders.length; i++) {
-    squares[alienInvaders[i]].classList.remove('bat');
+  for(let i = 0; i < batInvaders.length; i++) {
+    if (batInvaders[i] != -1) {
+      squares[batInvaders[i]].classList.remove("bat");
+    }
   }
 }
 
 draw();
 
-// MOVIMENTO ALIENI
+// MOVIMENTO PIPISTRELLI
 let direction = 'forward'; // 'backward'
 let step = 1;
-function moveAliens() {
+function moveBats() {
   
-  // 1. Rimuovo dalla griglia tutti gli alieni
+  // 1. Rimuovo dalla griglia tutti i pipistrelli
   clear();
 
   // 2. Cambio posizione manipolando gli indici
-
-  // Check bordi griglia:
-  // se il primo alieno dell'array è all'inizio della riga
-  // se l'ultimo alieno dell'array è alla fine della riga
-  const leftEdge = alienInvaders[0] % width === 0;
-  const rightEdge = alienInvaders[alienInvaders.length - 1] % width === (width - 1);
-
-
-  // Se sono al bordo destro e mi sposto verso destra
-  // avanzo di una riga (index + width + 1) e inverto il senso i marcia
-  if(rightEdge && direction === 'forward') {
-    for(let i = 0; i < alienInvaders.length; i++) {      
-      alienInvaders[i] =  alienInvaders[i] + width + 1;
-      step = -1;
-      direction = 'backward';
+  for (let i = 0; i < batInvaders.length; i++) {
+    if (batInvaders[i] != -1) {
+      batInvaders[i] = batInvaders[i] + step;
+      checkBatWin(batInvaders[i]);
     }
   }
 
-  // Se sono al bordo sinistrio e mi sposto verso sinistra
-  // avanzo di una riga (index + width - 1) e inverto il senso i marcia
-  if(leftEdge && direction === 'backward') {
-    for (let i = 0; i < alienInvaders.length; i++) {
-      alienInvaders[i] = alienInvaders[i] + (width - 1);
-      step = 1;
+  // 3. Ridisegno i pipistrelli nella nuova posizione
+  draw();
+
+  flag = false;
+  if (direction === 'forward') {
+    step = 1;
+    i = 9;
+    // se almeno un pipistrello dell'array è alla fine della riga
+    do {
+      let f1 = (batInvaders[i] != -1) && (batInvaders[i] % width === (width - 1));
+      let f2 = (batInvaders[i + 10] != -1) && (batInvaders[i + 10] % width === (width - 1));
+      let f3 = (batInvaders[i + 20] != -1) && (batInvaders[i + 20] % width === (width - 1));
+      flag = f1 | f2 | f3;
+      i--;
+    } while (!flag && i > 0)
+    if (flag) {
+      // Se sono al bordo destro e mi sposto verso destra
+      // avanzo di una riga (index + width + 1) e inverto il senso i marcia
+      step = width;
+      direction = 'backward';
+    }
+  } else if (direction === 'backward') {
+    step = -1;
+    i = 0;
+    // se almeno un pipistrello dell'array è all'inizio della riga
+    do {
+      let f1 = (batInvaders[i] != -1) && (batInvaders[i] % width === 0);
+      let f2 = (batInvaders[i + 10] != -1) && (batInvaders[i + 10] % width === 0);
+      let f3 = (batInvaders[i + 20] != -1) && (batInvaders[i + 20] % width === 0);
+      flag = f1 | f2 | f3;
+      i++;
+    } while (!flag && i < 10)
+    if (flag) {
+      // Se sono al bordo sinistrio e mi sposto verso sinistra
+      // avanzo di una riga (index + width - 1) e inverto il senso i marcia
+      step = width;
       direction = 'forward';
     }
   }
-
-  for (let i = 0; i < alienInvaders.length; i++) {
-    alienInvaders[i] = alienInvaders[i] + step;
-    checkAlienWin(alienInvaders[i]);
-  }
-
-  // 3. Ridisegno gli alieni nella nuova posizione
-  draw();
 }
 
-batInterval = setInterval(moveAliens, aliensSpeed);
+batInterval = setInterval(moveBats, batsSpeed);
 
 
-// ASTRONAVE
-squares[currentSpaceshipIndex].classList.add('pumpkin');
+// ZUCCA
+squares[currentPumpkinIndex].classList.add('pumpkin');
 
-function moveSpaceship(e) {
+function movePumpkin(e) {
   if (!noEvents) {
-    squares[currentSpaceshipIndex].classList.remove('pumpkin');
-    // console.log(currentSpaceshipIndex);
+    squares[currentPumpkinIndex].classList.remove('pumpkin');
 
-    if (e.code === 'ArrowLeft' && currentSpaceshipIndex % width !== 0) {
-      currentSpaceshipIndex--;
-    } else if (e.code === 'ArrowRight' && currentSpaceshipIndex % width < (width - 1)) {
-        currentSpaceshipIndex++;
+    if (e.code === 'ArrowLeft' && currentPumpkinIndex % width !== 0) {
+      currentPumpkinIndex--;
+    } else if (e.code === 'ArrowRight' && currentPumpkinIndex % width < (width - 1)) {
+        currentPumpkinIndex++;
     }
 
-    squares[currentSpaceshipIndex].classList.add('pumpkin');
+    squares[currentPumpkinIndex].classList.add('pumpkin');
   }
 }
 
-document.addEventListener('keydown', moveSpaceship);
+document.addEventListener('keydown', movePumpkin);
 
-// LASER
+// CARAMELLA
 function shoot(e) {
 
   if(e.code !== 'Space') return;
 
   if (!noEvents) {
-    let laserInterval = null;
-    let currentLaserIndex = currentSpaceshipIndex;
+    let candyInterval = null;
+    let currentCandyIndex = currentPumpkinIndex;
   
     function moveLaser() {
-      squares[currentLaserIndex].classList.remove('candy');
-      currentLaserIndex = currentLaserIndex - width;
+      squares[currentCandyIndex].classList.remove('candy');
+      currentCandyIndex = currentCandyIndex - width;
 
-      if(currentLaserIndex < 0) {
-        clearInterval(laserInterval);
+      if(currentCandyIndex < 0) {
+        clearInterval(candyInterval);
         return;
       };
       
-      squares[currentLaserIndex].classList.add('candy');
+      squares[currentCandyIndex].classList.add('candy');
 
-      if(squares[currentLaserIndex].classList.contains('bat')) {      
-        boom(squares[currentLaserIndex]);
+      if(squares[currentCandyIndex].classList.contains('bat')) {      
+        boom(squares[currentCandyIndex]);
         updateScore();
-        clearInterval(laserInterval);
+        clearInterval(candyInterval);
 
-        const alienRemoved = alienInvaders.indexOf(currentLaserIndex);
-        aliensRemoved.push(alienRemoved);
+        const batRemoved = batInvaders.indexOf(currentCandyIndex);
+        batInvaders[batRemoved] = -1;
         checkHumanWin();
         
       }
     }
 
-    laserInterval = setInterval(moveLaser, 100);
+    candyInterval = setInterval(moveLaser, 100);
   }
 
 }
@@ -172,14 +183,11 @@ function updateScore() {
   resultsDisplay.innerHTML = results;
 }
 
-// Vittoria alieni: hanno raggiunto la base
-// l'indice di un qualsiasi alieno è maggiore
+// Vittoria pipistrelli: hanno raggiunto la base
+// l'indice di un qualsiasi pipistrello è maggiore
 // della lunghezza dell'array della griglia
-function checkAlienWin(alien) {
-  if(
-    !aliensRemoved.includes(alien) &&
-    alien >= currentSpaceshipIndex
-  ) {
+function checkBatWin(bat) {
+  if ((bat != 1) && bat >= currentPumpkinIndex) {
     clearInterval(batInterval);
     noEvents = true;
     showAlert('GAME OVER');
@@ -187,8 +195,8 @@ function checkAlienWin(alien) {
 }
 
 function checkHumanWin() {
-  // Vittoria umano: array alieni è uguale all'array dei rimossi
-  if (aliensRemoved.length === alienInvaders.length) {
+  // Vittoria umano: il numero dei pipistrelli rimossi è uguale al numero dei totali
+  if (results >= batInvaders.length) {
     clearInterval(batInterval);
     noEvents = true;
     showAlert('VITTORIA!');
