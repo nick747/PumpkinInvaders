@@ -5,9 +5,9 @@ const DEBUG = false;
 const width = 15; 
 const rxc = width * width;
 const squares = [];
-const batsSpeed = 200;
+let batsSpeed = 200;
 
-let noEvents = false;
+let noEvents = true;
 let batInterval = null;
 let currentPumpkinIndex = 217;
 let results = 0;
@@ -49,6 +49,53 @@ function clear() {
     }
   }
 }
+
+
+const start = document.getElementById("start");
+const speed1 = document.getElementById("speed1");
+const speed2 = document.getElementById("speed2");
+const speed3 = document.getElementById("speed3");
+
+
+
+start.addEventListener("click", function(){
+  noEvents = false;
+  console.log(batsSpeed);
+  batInterval = setInterval(moveBats, batsSpeed);
+});
+
+
+speed1.addEventListener("click", function(){
+  if (noEvents) {
+    batsSpeed = 500;
+    speed2.classList.remove("selected");
+    speed3.classList.remove("selected");
+    speed1.classList.add('selected');
+}
+});
+
+
+speed2.addEventListener("click", function(){
+  if (noEvents) {
+    speed1.classList.remove("selected");
+    speed3.classList.remove("selected");
+    speed2.classList.add('selected');
+    batsSpeed = 200;
+  }
+});
+
+
+speed3.addEventListener("click", function(){
+  if (noEvents) {
+    speed2.classList.remove("selected");
+    speed1.classList.remove("selected");
+    speed3.classList.add('selected');
+    batsSpeed = 50;
+  }
+});
+
+
+
 
 draw();
 
@@ -109,7 +156,7 @@ function moveBats() {
   }
 }
 
-batInterval = setInterval(moveBats, batsSpeed);
+
 
 
 // ZUCCA
