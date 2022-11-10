@@ -166,9 +166,9 @@ function movePumpkin(e) {
   if (!noEvents) {
     squares[currentPumpkinIndex].classList.remove('pumpkin');
 
-    if (e.code === 'ArrowLeft' && currentPumpkinIndex % width !== 0) {
+    if ((e.code === 'ArrowLeft' || e.code == 'KeyA') && currentPumpkinIndex % width !== 0 ) {
       currentPumpkinIndex--;
-    } else if (e.code === 'ArrowRight' && currentPumpkinIndex % width < (width - 1)) {
+    } else if ((e.code === 'ArrowRight' || e.code == 'KeyD') && currentPumpkinIndex % width < (width - 1)) {
         currentPumpkinIndex++;
     }
 
